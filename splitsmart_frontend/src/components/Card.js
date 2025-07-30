@@ -1,24 +1,24 @@
 import React from "react";
-import { CARD_SHADOW, COLORS } from "../constants/theme";
+import Paper from "@mui/material/Paper";
 
 /**
  * PUBLIC_INTERFACE
- * Card: a stylized container for UI sections according to card-based design.
+ * Card: a stylized container for UI sections according to card-based design using Material UI Paper.
  */
-export default function Card({ children, style }) {
+export default function Card({ children, style, ...rest }) {
   return (
-    <div
-      style={{
-        background: COLORS.cardBg,
-        boxShadow: CARD_SHADOW,
-        borderRadius: "1rem",
-        padding: "2rem",
-        margin: "0 auto 2rem auto",
-        maxWidth: 750,
+    <Paper
+      elevation={4}
+      sx={{
+        borderRadius: 3,
+        p: { xs: 2, md: 3 },
+        my: 2,
+        width: "100%",
         ...style,
       }}
+      {...rest}
     >
       {children}
-    </div>
+    </Paper>
   );
 }

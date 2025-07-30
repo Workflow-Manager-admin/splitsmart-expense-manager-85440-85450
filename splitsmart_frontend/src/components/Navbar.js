@@ -1,96 +1,154 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
-import { COLORS } from "../constants/theme";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import { orange } from "@mui/material/colors";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import DirectionsWalkRoundedIcon from "@mui/icons-material/DirectionsWalkRounded";
 
 /**
  * PUBLIC_INTERFACE
  * Main header navigation bar: logo, links to Dashboard, Groups, Trips, user menu.
  */
-const navStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "0 2rem",
-  height: "64px",
-  background: COLORS.primary,
-  color: "#fff",
-  boxShadow: "0 2px 12px 0 rgba(0,0,0,0.08)"
-};
-
-const logoStyle = {
-  fontSize: "1.5rem",
-  fontWeight: 700,
-  textDecoration: "none",
-  color: "#fff",
-  letterSpacing: "1px"
-};
-
-const navLinksStyle = {
-  display: "flex",
-  gap: "2rem"
-};
-
-const navLink = active => ({
-  color: "#fff",
-  textDecoration: "none",
-  borderBottom: active ? `3px solid ${COLORS.accent}` : "none",
-  fontWeight: 500,
-  padding: "0.25rem 0"
-});
-
-const userMenuStyle = {
-  background: COLORS.secondary,
-  borderRadius: "16px",
-  padding: "0.5rem 1rem",
-  marginLeft: "2rem",
-  color: "#fff",
-  fontWeight: 500,
-  textDecoration: "none"
-};
-
 function Navbar() {
   const loc = useLocation();
   const { user, logout } = useAppContext();
 
+  const navLinks = [
+    {
+      label: "Dashboard",
+      path: "/dashboard",
+      icon: <DashboardRoundedIcon sx={{ mr: 0.5 }} fontSize="small" />,
+      active: loc.pathname.startsWith("/dashboard"),
+    },
+    {
+      label: "Groups",
+      path: "/group/0",
+      icon: <GroupsRoundedIcon sx={{ mr: 0.5 }} fontSize="small" />,
+      active: loc.pathname.startsWith("/group"),
+    },
+    {
+      label: "Trips",
+      path: "/trip/0",
+      icon: <DirectionsWalkRoundedIcon sx={{ mr: 0.5 }} fontSize="small" />,
+      active: loc.pathname.startsWith("/trip"),
+    },
+  ];
+
   return (
-    <header style={navStyle}>
-      <Link to="/dashboard" style={logoStyle}>
-        SplitSmart
-      </Link>
-      <nav style={navLinksStyle}>
-        <Link to="/dashboard" style={navLink(loc.pathname.startsWith("/dashboard"))}>
-          Dashboard
-        </Link>
-        <Link to="/group/0" style={navLink(loc.pathname.startsWith("/group"))}>
-          Groups
-        </Link>
-        <Link to="/trip/0" style={navLink(loc.pathname.startsWith("/trip"))}>
-          Trips
-        </Link>
-      </nav>
-      <div>
-        {user ? (
-          <>
-            <span>{user.email}</span>
-            <button
-              style={{
-                ...userMenuStyle,
-                background: COLORS.accent,
-                marginLeft: "1rem"
-              }}
-              onClick={logout}
+    <AppBar
+      position="static"
+      color="primary"
+      elevation={3}
+      sx={{
+        zIndex: 10,
+        borderRadius: 0,
+      }}
+    >
+      <Toolbar sx={{ minHeight: { xs: 56, sm: 68 } }}>
+        <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+          <Avatar
+            sx={{
+              bgcolor: orange[600],
+              width: 38,
+              height: 38,
+              mr: 2,
+              fontWeight: 600,
+              fontSize: 22,
+              letterSpacing: "0.02em",
+            }}
+            aria-label="SplitSmart icon"
+          >
+            S$
+          </Avatar>
+          <Typography
+            variant="h5"
+            noWrap
+            component={Link}
+            to="/dashboard"
+            sx={{
+              color: "#fff",
+              textDecoration: "none",
+              letterSpacing: "0.5px",
+              fontWeight: 700,
+              pr: 3,
+              fontFamily: "inherit",
+            }}
+          >
+            SplitSmart
+          </Typography>
+          <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
+            {navLinks.map((link) => (
+              <Button
+                key={link.label}
+                component={Link}
+                to={link.path}
+                startIcon={link.icon}
+                color={link.active ? "warning" : "inherit"}
+                sx={{
+                  fontWeight: 600,
+                  borderBottom: link.active ? "3px solid #FF9500" : "none",
+                  borderRadius: 0,
+                  background: "none",
+                  color: "inherit",
+                  minWidth: 90,
+                  px: 1.3,
+                  ":hover": {
+                    bgcolor: "primary.dark",
+                  },
+                }}
+              >
+                {link.label}
+              </Button>
+            ))}
+          </Box>
+        </Box>
+        <Box>
+          {user ? (
+            <Box display="flex" alignItems="center" gap={1.5}>
+              <Typography variant="subtitle2" sx={{ color: "info.light" }}>
+                {user.email}
+              </Typography>
+              <Button
+                onClick={logout}
+                startIcon={<ExitToAppIcon />}
+                sx={{
+                  bgcolor: "warning.main",
+                  color: "#fff",
+                  fontWeight: 600,
+                  borderRadius: 3,
+                  px: 2,
+                  ml: 0.5,
+                  boxShadow: 1,
+                  ":hover": { bgcolor: "warning.dark" },
+                }}
+              >
+                Logout
+              </Button>
+            </Box>
+          ) : (
+            <Button
+              component={Link}
+              to="/auth"
+              startIcon={<LoginRoundedIcon />}
+              color="secondary"
+              variant="contained"
+              sx={{ fontWeight: 600, borderRadius: 3, px: 2 }}
             >
-              Logout
-            </button>
-          </>
-        ) : (
-          <Link to="/auth" style={userMenuStyle}>
-            Login&nbsp;/&nbsp;Sign Up
-          </Link>
-        )}
-      </div>
-    </header>
+              Login&nbsp;/&nbsp;Sign Up
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
 

@@ -1,6 +1,20 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import { CARD_SHADOW, COLORS } from "../constants/theme";
+import AddIcon from "@mui/icons-material/Add";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  IconButton,
+  Tooltip,
+  Slide,
+} from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
+import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined";
 
 /**
  * PUBLIC_INTERFACE
@@ -24,107 +38,129 @@ export default function ExpenseModal() {
     setFile(null);
   };
 
-  if (!open) {
-    // Replace with Add Expense button somewhere
-    return (
-      <button
-        style={{
-          position: "fixed",
-          right: "2rem",
-          bottom: "2rem",
-          background: COLORS.primary,
-          color: "#fff",
-          border: "none",
-          borderRadius: "50%",
-          height: 60,
-          width: 60,
-          fontSize: 36,
-          boxShadow: CARD_SHADOW,
-          cursor: "pointer"
-        }}
-        onClick={() => setOpen(true)}
-        aria-label="Add Expense"
-      >+
-      </button>
-    );
-  }
-
   return (
-    <div
-      style={{
-        position: "fixed",
-        zIndex: 10000,
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        background: "rgba(40,44,52,0.45)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }}
-    >
-      <form
-        style={{
-          background: "#fff",
-          borderRadius: 18,
-          boxShadow: CARD_SHADOW,
-          padding: "2.5rem",
-          width: 350,
-          maxWidth: "97vw"
+    <>
+      <AnimatePresence>
+        {!open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.27 }}
+            style={{ position: "fixed", right: 36, bottom: 36, zIndex: 1201 }}
+          >
+            <Tooltip title="Add Expense" placement="left">
+              <IconButton
+                color="primary"
+                aria-label="Add Expense"
+                size="large"
+                sx={{
+                  background: "linear-gradient(135deg,#007AFF 75%,#FF9500 130%)",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  boxShadow: 6,
+                  height: 62,
+                  width: 62,
+                  fontSize: 38,
+                  "&:hover": {
+                    background: "linear-gradient(135deg,#005ce0 70%,#e87a41 130%)",
+                  },
+                }}
+                onClick={() => setOpen(true)}
+              >
+                <AddIcon sx={{ fontSize: 38 }} />
+              </IconButton>
+            </Tooltip>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          component: motion.div,
+          initial: { opacity: 0, y: 40, scale: 0.97 },
+          animate: { opacity: 1, y: 0, scale: 1 },
+          exit: { opacity: 0, y: 24, scale: 0.98 },
+          transition: { duration: 0.25 },
+          sx: { borderRadius: 4, p: 0 },
         }}
-        onSubmit={handleSubmit}
+        TransitionComponent={Slide}
+        TransitionProps={{ direction: "up" }}
+        keepMounted
       >
-        <h3 style={{ color: COLORS.primary }}>Add Expense</h3>
-        <input
-          required
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          style={{ width: "100%", margin: "0.6rem 0", padding: "0.5rem" }}
-        />
-        <input
-          required
-          type="number"
-          min="0.01"
-          step="0.01"
-          placeholder="Amount"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-          style={{ width: "100%", margin: "0.6rem 0", padding: "0.5rem" }}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={e => setFile(e.target.files[0])}
-          style={{ width: "100%", margin: "0.6rem 0" }}
-        />
-        <div style={{ marginTop: "1.2rem", textAlign: "right" }}>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: COLORS.secondary,
-              marginRight: 12,
-              fontWeight: 500
-            }}
-          >Cancel</button>
-          <button
-            type="submit"
-            style={{
-              background: COLORS.primary,
-              color: "#fff",
-              border: "none",
-              padding: "0.5rem 1.3rem",
-              borderRadius: 7,
-              fontWeight: 600
-            }}
-          >Add</button>
-        </div>
-      </form>
-    </div>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle sx={{ color: "primary.main", pb: 0.5, fontWeight: 700, fontSize: 22 }}>
+            Add Expense
+          </DialogTitle>
+          <DialogContent sx={{ pt: 1.2, pb: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField
+              label="Description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              required
+              fullWidth
+              autoFocus
+              variant="outlined"
+              margin="dense"
+            />
+            <TextField
+              label="Amount"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              required
+              type="number"
+              inputProps={{ min: 0.01, step: 0.01 }}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Button
+                component="label"
+                startIcon={<AttachFileOutlinedIcon />}
+                variant="outlined"
+                color={file ? "success" : "primary"}
+                sx={{ borderRadius: 2, minWidth: 0, fontWeight: 500 }}
+              >
+                {file ? file.name : "Attach Receipt"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={e => setFile(e.target.files[0])}
+                />
+              </Button>
+              {file && (
+                <Button
+                  variant="text"
+                  size="small"
+                  color="error"
+                  onClick={() => setFile(null)}
+                  sx={{ fontSize: 13 }}
+                >
+                  Remove
+                </Button>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)} variant="text" color="secondary">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Add
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </>
   );
 }
